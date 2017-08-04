@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <style>
+        #mydiv{
+            width:1000px;
+            margin:0 auto;
+            border:1px green solid;
+            height:600px;
+        }
+        td{
+            border:1px green solid;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+       <div id="mydiv">
+           <table id="generatedTable" cellspacing="0" style ="border:2px solid green; display: none;width:100%;">
+               <thead>
+               <tr>
+                   <th style='width:10%;'>第一列</th>
+                   <th style='width:15%;'>第二列</th>
+                   <th style='width:15%;'>第三列</th>
+                   <th style='width:15%;'>第四列</th>
+                   <th style='width:15%;'>第五列</th>
+                   <th style='width:15%;'>第六列</th>
+                   <th style='width:15%;'>第七列</th>
+               </tr>
+               </thead>
+               <tbody>
+               <tr id="cloneTr">
+                   <td></td>
+                   <td></td>
+                   <td></td>
+                   <td></td>
+                   <td></td>
+                   <td></td>
+                   <td></td>
+               </tr>
+               <tr>
+                   <td colspan="4">合计</td>
+                   <td id="sum1"></td>
+                   <td id="sum2"></td>
+                   <td id="sum3"></td>
+               </tr>
+               </tbody>
+           </table>
+       </div>
+</body>
+</html>
+<script>
+    $(function(){
+        $.ajax({
+            url: 'data/data1.json',
+            type: 'GET',                                                      //在这可写可不写
+            data:'data',
+            dataType: 'json',
+            timeout: 1000,
+            success: succFunction                                             //成功执行方法
+        });
+        function succFunction(objects){
+            var tr = $("#cloneTr");
+            $.each(objects, function(index,item){                             //克隆tr，每次遍历都可以产生新的tr
+                var clonedTr = tr.clone();
+                var _index = index;
+
+                clonedTr.children("td").each(function(inner_index){          //循环遍历cloneTr的每一个td元素，并赋值
+                    switch(inner_index){                                     //根据索引为每一个td赋值
+                        case(0):
+                            $(this).html(item.name);
+                            break;
+                        case(1):
+                            $(this).html(item.time);
+                            break;
+                        case(2):
+                            $(this).html(item.adress);
+                            break;
+                        case(3):
+                            $(this).html(item.cause);
+                            break;
+                        case(4):
+                            $(this).html(item.daytimes);
+                            break;
+                        case(5):
+                            $(this).html(item.monthtimes);
+                            break;
+                        case(6):
+                            $(this).html(item.yeartimes);
+                            break;
+                    }                                                              //end switch
+                });
+                                                                                //end children.each
+                clonedTr.insertAfter(tr);                                        //把克隆好的tr追加原来的tr后面
+            });                                                                   //end $each
+               tr.hide();                                                         //隐藏id=clone的tr，因为该tr中的td没有数据，不隐藏起来会在生成的table第一行显示一个空行
+               $("#generatedTable").show();
+
+//合计求和
+            var json={}; json.dtimes = 0; json.mtimes = 0;json.ytimes = 0;
+            var arr=objects;
+            for(var i=0; i<arr.length; i++){
+                json.dtimes += parseInt(arr[i].daytimes);
+                json.mtimes += parseInt(arr[i].monthtimes);
+                json.ytimes += parseInt(arr[i].yeartimes)
+            }
+                $("#sum1").text(json.dtimes);
+                $("#sum2").text(json.mtimes);
+                $("#sum3").text(json.ytimes);
+
+        }
+    });
+</script>
+
